@@ -88,8 +88,9 @@ public class EmployeeController {
      * @return 单条数据
      */
     @GetMapping("{id}")
-    public ResponseEntity<Employee> queryById(@PathVariable("id") Long id) {
-        return ResponseEntity.ok(this.employeeService.getById(id));
+    public Result<Employee> queryById(@PathVariable("id") Long id) {
+        Employee employee = employeeService.getById(id);
+        return Result.success(employee);
     }
 
     /**
@@ -125,14 +126,14 @@ public class EmployeeController {
     @GetMapping("/page")
     public Result<Page> list(int page, int pageSize, String name) {
         //创建查询类
-        Page pageInfo = new Page(page,pageSize);
+        Page pageInfo = new Page(page, pageSize);
         //创建查询条件
         LambdaQueryWrapper<Employee> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.like(StringUtils.isNotEmpty(name),Employee::getName,name);
+        queryWrapper.like(StringUtils.isNotEmpty(name), Employee::getName, name);
         queryWrapper.orderByDesc(Employee::getUpdateTime);
 
         //查询
-        employeeService.page(pageInfo,queryWrapper);
+        employeeService.page(pageInfo, queryWrapper);
         return Result.success(pageInfo);
     }
 
@@ -143,7 +144,7 @@ public class EmployeeController {
      * @return
      */
     @PutMapping
-    public Result<String> update(HttpServletRequest request,@RequestBody Employee employee){
+    public Result<String> update(HttpServletRequest request, @RequestBody Employee employee) {
         employee.setUpdateUser((Long) request.getSession().getAttribute("employee"));
         employee.setUpdateTime(LocalDateTime.now());
         employeeService.updateById(employee);

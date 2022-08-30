@@ -9,7 +9,6 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.extern.slf4j.Slf4j;
 
 import org.apache.commons.lang.StringUtils;
-import org.springframework.http.ResponseEntity;
 import org.springframework.util.DigestUtils;
 import org.springframework.web.bind.annotation.*;
 
@@ -104,13 +103,13 @@ public class EmployeeController {
         log.info("新增的员工信息：{}", employee.toString());
         //设置初始密码12345，进行md5加密
         employee.setPassword(DigestUtils.md5DigestAsHex("12345".getBytes(StandardCharsets.UTF_8)));
-        //设置更新信息
+/*        //设置更新信息
         employee.setCreateTime(LocalDateTime.now());
         employee.setUpdateTime(LocalDateTime.now());
         //设置创建用户的Id
         Long id = (Long) request.getSession().getAttribute("employee");
         employee.setCreateUser(id);
-        employee.setUpdateUser(id);
+        employee.setUpdateUser(id);*/
         employeeService.save(employee);
         return Result.success("新增成功！");
     }
@@ -145,12 +144,11 @@ public class EmployeeController {
      */
     @PutMapping
     public Result<String> update(HttpServletRequest request, @RequestBody Employee employee) {
-        employee.setUpdateUser((Long) request.getSession().getAttribute("employee"));
-        employee.setUpdateTime(LocalDateTime.now());
+/*        employee.setUpdateUser((Long) request.getSession().getAttribute("employee"));
+        employee.setUpdateTime(LocalDateTime.now());*/
         employeeService.updateById(employee);
         return Result.success("更新成功");
     }
-
 
 }
 

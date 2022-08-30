@@ -2,6 +2,7 @@ package cn.uniqueww.filter;
 
 
 import cn.uniqueww.common.Result;
+import cn.uniqueww.utils.BaseContext;
 import com.alibaba.fastjson.JSON;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.AntPathMatcher;
@@ -39,7 +40,7 @@ public class LoginCheckFilter implements Filter {
                 "/front/**"
         };
         //请求链接不在不需要拦截的资源里
-        if (!checke(url,urls)){
+        if (!check(url,urls)){
             //未登录
             if (request.getSession().getAttribute("employee")==null){
                 response.getWriter().write(JSON.toJSONString(Result.error("NOTLOGIN")));
@@ -48,6 +49,9 @@ public class LoginCheckFilter implements Filter {
             }
         }
 
+        //必须放在doFilter之前否则不生效
+        BaseContext.setCurrentId((Long) request.getSession().getAttribute("employee"));
+        log.info("目前的用户Id是:{}",BaseContext.getCurrentId());
         //已经登录不做处理
         filterChain.doFilter(request,response);
         return;
@@ -59,7 +63,7 @@ public class LoginCheckFilter implements Filter {
      * @param urls
      * @return
      */
-    public boolean checke(String url,String[] urls){
+    public boolean check(String url,String[] urls){
         for (String s : urls) {
             boolean match = ANT_PATH_MATCHER.match(s, url);
             if (match){

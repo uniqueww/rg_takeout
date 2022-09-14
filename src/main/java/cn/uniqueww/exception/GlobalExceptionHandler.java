@@ -29,5 +29,16 @@ public class GlobalExceptionHandler {
         return Result.error("未知异常");
     }
 
+    /**
+     * 重载
+     * @param ex
+     * @return
+     */
+    @ExceptionHandler(CustomException.class)
+    public Result<String> ExHandler(CustomException ex){
+        log.info(ex.getMessage());
+        return Result.error(ex.getMessage());
+    }
+
 
 }

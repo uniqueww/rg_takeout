@@ -25,4 +25,4 @@ mybatis-plus:
     db-config:
       id-type: ASSIGN_ID
 upload:
-  filePath: E:\maven_project\images
+  filePath: F:\WorkImage\

@@ -1,36 +1,29 @@
 package cn.uniqueww.entity;
 
 import java.time.LocalDateTime;
+
 import com.baomidou.mybatisplus.annotation.FieldFill;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.extension.activerecord.Model;
+
 import java.io.Serializable;
 
 /**
- * 套餐(Setmeal)表实体类
+ * 菜品口味关系表(DishFlavor)表实体类
  *
  * @author 罗玉新
- * @since 2022-09-14 12:41:31
+ * @since 2022-09-14 14:59:41
  */
 @SuppressWarnings("serial")
-public class Setmeal extends Model<Setmeal> {
+public class DishFlavor extends Model<DishFlavor> {
     //主键
     private Long id;
-    //菜品分类id
-    private Long categoryId;
-    //套餐名称
+    //菜品
+    private Long dishId;
+    //口味名称
     private String name;
-    //套餐价格
-    private Double price;
-    //状态 0:停用 1:启用
-    private Integer status;
-    //编码
-    private String code;
-    //描述信息
-    private String description;
-    //图片
-    private String image;
-    //创建时间
+    //口味数据list
+    private String value;
     @TableField(fill = FieldFill.INSERT)
     private LocalDateTime createTime;
     //更新时间
@@ -54,12 +47,12 @@ public class Setmeal extends Model<Setmeal> {
         this.id = id;
     }
 
-    public Long getCategoryId() {
-        return categoryId;
+    public Long getDishId() {
+        return dishId;
     }
 
-    public void setCategoryId(Long categoryId) {
-        this.categoryId = categoryId;
+    public void setDishId(Long dishId) {
+        this.dishId = dishId;
     }
 
     public String getName() {
@@ -70,44 +63,12 @@ public class Setmeal extends Model<Setmeal> {
         this.name = name;
     }
 
-    public Double getPrice() {
-        return price;
+    public String getValue() {
+        return value;
     }
 
-    public void setPrice(Double price) {
-        this.price = price;
-    }
-
-    public Integer getStatus() {
-        return status;
-    }
-
-    public void setStatus(Integer status) {
-        this.status = status;
-    }
-
-    public String getCode() {
-        return code;
-    }
-
-    public void setCode(String code) {
-        this.code = code;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public String getImage() {
-        return image;
-    }
-
-    public void setImage(String image) {
-        this.image = image;
+    public void setValue(String value) {
+        this.value = value;
     }
 
     public LocalDateTime getCreateTime() {
@@ -159,5 +120,5 @@ public class Setmeal extends Model<Setmeal> {
     protected Serializable pkVal() {
         return this.id;
     }
-    }
+}
 

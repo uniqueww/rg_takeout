@@ -1,5 +1,6 @@
 package cn.uniqueww.service;
 
+import cn.uniqueww.dto.DishDto;
 import com.baomidou.mybatisplus.extension.service.IService;
 import cn.uniqueww.entity.Dish;
 
@@ -11,7 +12,7 @@ import cn.uniqueww.entity.Dish;
  */
 public interface DishService extends IService<Dish> {
 
-
+    public void saveWithFlavors(DishDto dishDto);
 
 }
 

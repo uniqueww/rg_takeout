@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.api.ApiController;
 import cn.uniqueww.common.Result;
+import com.baomidou.mybatisplus.extension.api.R;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import cn.uniqueww.entity.Category;
 import cn.uniqueww.service.CategoryService;
@@ -88,6 +89,20 @@ public class CategoryController extends ApiController {
     public Result delete(@RequestParam("ids") Long ids) {
         categoryService.myRemove(ids);
         return Result.success("删除成功");
+    }
+
+    /**
+     * 查询不同分类
+     * @param category
+     * @return
+     */
+    @GetMapping("/list")
+    public Result<List<Category>> list(Category category){
+        LambdaQueryWrapper<Category> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(category.getType()!=null,Category::getType,category.getType());
+        queryWrapper.orderByAsc(Category::getSort);
+        List<Category> list = categoryService.list(queryWrapper);
+        return Result.success(list);
     }
 }
 

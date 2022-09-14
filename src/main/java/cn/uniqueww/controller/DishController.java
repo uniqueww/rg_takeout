@@ -1,18 +1,23 @@
 package cn.uniqueww.controller;
 
 
-
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import cn.uniqueww.dto.DishDto;
+import cn.uniqueww.entity.Category;
+import cn.uniqueww.service.CategoryService;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;;
 import com.baomidou.mybatisplus.extension.api.ApiController;
 import cn.uniqueww.common.Result;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import cn.uniqueww.entity.Dish;
 import cn.uniqueww.service.DishService;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.BeanUtils;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import java.io.Serializable;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * 菜品管理(Dish)表控制层
@@ -20,9 +25,14 @@ import java.util.List;
  * @author 罗玉新
  * @since 2022-09-14 12:39:58
  */
+@Slf4j
 @RestController
-@RequestMapping("dish")
+@RequestMapping("/dish")
 public class DishController extends ApiController {
+
+    @Resource
+    private CategoryService categoryService;
+
     /**
      * 服务对象
      */
@@ -33,12 +43,41 @@ public class DishController extends ApiController {
      * 分页查询所有数据
      *
      * @param page 分页对象
-     * @param dish 查询实体
+     * @param name 查询实体
      * @return 所有数据
      */
-    @GetMapping
-    public Result selectAll(Page<Dish> page, Dish dish) {
-        return Result.success(this.dishService.page(page, new QueryWrapper<>(dish)));
+    @GetMapping("/page")
+    public Result page(int page, int pageSize, String name) {
+        //构造分页对象
+        Page<Dish> pageInfo = new Page<>(page,pageSize);
+        Page<DishDto> dtoPage = new Page<>();
+
+        //构造查询器
+        LambdaQueryWrapper<Dish> queryWrapper = new LambdaQueryWrapper();
+        //查询条件封装
+        queryWrapper.like(name != null, Dish::getName, name);
+
+        dishService.page(pageInfo, queryWrapper);
+
+        BeanUtils.copyProperties(pageInfo, dtoPage, "records");
+        //数据清洗
+        List<Dish> records = pageInfo.getRecords();
+        List<DishDto> newRecords = records.stream().map(s -> {
+            //创建接收对象
+            DishDto dishDto = new DishDto();
+            //将数据拷贝过去
+            BeanUtils.copyProperties(s, dishDto);
+            Long categoryId = s.getCategoryId();
+            Category category = categoryService.getById(categoryId);
+            //防止空指针
+            if (category!=null ){
+                dishDto.setCategoryName(category.getName());
+            }
+            return dishDto;
+        }).collect(Collectors.toList());
+
+        dtoPage.setRecords(newRecords);
+        return Result.success(dtoPage);
     }
 
     /**
@@ -55,12 +94,14 @@ public class DishController extends ApiController {
     /**
      * 新增数据
      *
-     * @param dish 实体对象
+     * @param dishDto 实体对象
      * @return 新增结果
      */
     @PostMapping
-    public Result insert(@RequestBody Dish dish) {
-        return Result.success(this.dishService.save(dish));
+    public Result insert(@RequestBody DishDto dishDto) {
+        log.info(dishDto.toString());
+        dishService.saveWithFlavors(dishDto);
+        return Result.success("添加成功");
     }
 
     /**

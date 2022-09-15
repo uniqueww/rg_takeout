@@ -88,7 +88,10 @@ public class DishController extends ApiController {
      */
     @GetMapping("{id}")
     public Result selectOne(@PathVariable Serializable id) {
-        return Result.success(this.dishService.getById(id));
+
+        DishDto dishDto = dishService.getWithFlavors(id);
+
+        return Result.success(dishDto);
     }
 
     /**
@@ -107,12 +110,13 @@ public class DishController extends ApiController {
     /**
      * 修改数据
      *
-     * @param dish 实体对象
+     * @param dishDto 实体对象
      * @return 修改结果
      */
     @PutMapping
-    public Result update(@RequestBody Dish dish) {
-        return Result.success(this.dishService.updateById(dish));
+    public Result update(@RequestBody DishDto dishDto) {
+        dishService.upWithFlavors(dishDto);
+        return Result.success("修改成功");
     }
 
     /**

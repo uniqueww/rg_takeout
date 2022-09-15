@@ -39,9 +39,9 @@ public class CategoryController extends ApiController {
      * @return 所有数据
      */
     @GetMapping("/page")
-    public Result selectAll(Page<Category> pageInfo, Long page,Category category) {
+    public Result selectAll(int pageSize, int page,Category category) {
+        Page<Category> pageInfo = new Page<>(page,pageSize);
         LambdaQueryWrapper<Category> categoryLambdaQueryWrapper = new LambdaQueryWrapper<>();
-        pageInfo.setCurrent(page);
         categoryLambdaQueryWrapper.orderByAsc(Category::getSort);
         return Result.success(this.categoryService.page(pageInfo,categoryLambdaQueryWrapper));
     }

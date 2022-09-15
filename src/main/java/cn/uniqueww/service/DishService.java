@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import cn.uniqueww.entity.Dish;
 
 import java.io.Serializable;
+import java.util.List;
 
 /**
  * 菜品管理(Dish)表服务接口
@@ -19,6 +20,8 @@ public interface DishService extends IService<Dish> {
     public DishDto getWithFlavors(Serializable id);
 
     public void upWithFlavors(DishDto dishDto);
+
+    public List<Dish>  getDishList(Dish dish);
 
 }
 

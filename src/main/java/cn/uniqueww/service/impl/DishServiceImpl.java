@@ -91,5 +91,14 @@ public class DishServiceImpl extends ServiceImpl<DishDao, Dish> implements DishS
         //存储Flavors
         dishFlavorService.saveBatch(flavors);
     }
+
+    @Override
+    public List<Dish> getDishList(Dish dish) {
+        LambdaQueryWrapper<Dish> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(Dish::getCategoryId,dish.getCategoryId());
+        queryWrapper.eq(Dish::getStatus,1);
+        List<Dish> list = this.list(queryWrapper);
+        return list;
+    }
 }
 

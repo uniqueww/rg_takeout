@@ -2,12 +2,15 @@ package cn.uniqueww.controller;
 
 
 
+import cn.uniqueww.dto.SetmealDto;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.api.ApiController;
 import cn.uniqueww.common.Result;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import cn.uniqueww.entity.Setmeal;
 import cn.uniqueww.service.SetmealService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -20,6 +23,7 @@ import java.util.List;
  * @author 罗玉新
  * @since 2022-09-14 12:41:31
  */
+@Slf4j
 @RestController
 @RequestMapping("setmeal")
 public class SetmealController extends ApiController {
@@ -33,12 +37,12 @@ public class SetmealController extends ApiController {
      * 分页查询所有数据
      *
      * @param page 分页对象
-     * @param setmeal 查询实体
      * @return 所有数据
      */
-    @GetMapping
-    public Result selectAll(Page<Setmeal> page, Setmeal setmeal) {
-        return Result.success(this.setmealService.page(page, new QueryWrapper<>(setmeal)));
+    @GetMapping("/page")
+    public Result page(int page, int pageSize, String name) {
+        Page<SetmealDto> dtoPage = setmealService.pageList(page, pageSize, name);
+        return Result.success(dtoPage);
     }
 
     /**
@@ -55,12 +59,14 @@ public class SetmealController extends ApiController {
     /**
      * 新增数据
      *
-     * @param setmeal 实体对象
+     * @param setmealDto 实体对象
      * @return 新增结果
      */
     @PostMapping
-    public Result insert(@RequestBody Setmeal setmeal) {
-        return Result.success(this.setmealService.save(setmeal));
+    public Result insert(@RequestBody SetmealDto setmealDto) {
+        log.info(setmealDto.toString());
+        setmealService.saveWithDishs(setmealDto);
+        return Result.success("添加成功");
     }
 
     /**

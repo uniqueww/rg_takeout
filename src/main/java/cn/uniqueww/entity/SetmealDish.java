@@ -1,7 +1,11 @@
 package cn.uniqueww.entity;
 
-import java.util.Date;
+import java.time.LocalDateTime;
+
+import com.baomidou.mybatisplus.annotation.FieldFill;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.extension.activerecord.Model;
+
 import java.io.Serializable;
 
 /**
@@ -27,12 +31,16 @@ public class SetmealDish extends Model<SetmealDish> {
     //排序
     private Integer sort;
     //创建时间
-    private Date createTime;
+    @TableField(fill = FieldFill.INSERT)
+    private LocalDateTime createTime;
     //更新时间
-    private Date updateTime;
+    @TableField(fill = FieldFill.INSERT_UPDATE)
+    private LocalDateTime updateTime;
     //创建人
+    @TableField(fill = FieldFill.INSERT)
     private Long createUser;
     //修改人
+    @TableField(fill = FieldFill.INSERT_UPDATE)
     private Long updateUser;
     //是否删除
     private Integer isDeleted;
@@ -94,19 +102,19 @@ public class SetmealDish extends Model<SetmealDish> {
         this.sort = sort;
     }
 
-    public Date getCreateTime() {
+    public LocalDateTime getCreateTime() {
         return createTime;
     }
 
-    public void setCreateTime(Date createTime) {
+    public void setCreateTime(LocalDateTime createTime) {
         this.createTime = createTime;
     }
 
-    public Date getUpdateTime() {
+    public LocalDateTime getUpdateTime() {
         return updateTime;
     }
 
-    public void setUpdateTime(Date updateTime) {
+    public void setUpdateTime(LocalDateTime updateTime) {
         this.updateTime = updateTime;
     }
 
@@ -143,5 +151,5 @@ public class SetmealDish extends Model<SetmealDish> {
     protected Serializable pkVal() {
         return this.id;
     }
-    }
+}
 

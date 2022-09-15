@@ -49,7 +49,7 @@ public class DishController extends ApiController {
     @GetMapping("/page")
     public Result page(int page, int pageSize, String name) {
         //构造分页对象
-        Page<Dish> pageInfo = new Page<>(page,pageSize);
+        Page<Dish> pageInfo = new Page<>(page, pageSize);
         Page<DishDto> dtoPage = new Page<>();
 
         //构造查询器
@@ -70,7 +70,7 @@ public class DishController extends ApiController {
             Long categoryId = s.getCategoryId();
             Category category = categoryService.getById(categoryId);
             //防止空指针
-            if (category!=null ){
+            if (category != null) {
                 dishDto.setCategoryName(category.getName());
             }
             return dishDto;
@@ -93,6 +93,19 @@ public class DishController extends ApiController {
 
         return Result.success(dishDto);
     }
+
+
+    /**
+     * 查询套餐内的菜品
+     *
+     * @return list数据
+     */
+    @GetMapping("/list")
+    public Result list(Dish dish) {
+        List<Dish> dishList = dishService.getDishList(dish);
+        return Result.success(dishList);
+    }
+
 
     /**
      * 新增数据

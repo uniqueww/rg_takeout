@@ -12,6 +12,7 @@ import cn.uniqueww.dao.DishDao;
 import cn.uniqueww.entity.Dish;
 import cn.uniqueww.service.DishService;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.util.List;
@@ -30,6 +31,7 @@ public class DishServiceImpl extends ServiceImpl<DishDao, Dish> implements DishS
     private DishFlavorService dishFlavorService;
 
     @Override
+    @Transactional
     public void saveWithFlavors(DishDto dishDto) {
         //存储Dish的基本信息
         super.save(dishDto);

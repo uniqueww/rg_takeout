@@ -3,6 +3,9 @@ package cn.uniqueww.controller;
 
 
 import cn.uniqueww.dto.SetmealDto;
+import cn.uniqueww.entity.SetmealDish;
+import cn.uniqueww.exception.CustomException;
+import cn.uniqueww.service.SetmealDishService;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.api.ApiController;
@@ -14,6 +17,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+import javax.swing.undo.CannotUndoException;
 import java.io.Serializable;
 import java.util.List;
 
@@ -32,6 +36,9 @@ public class SetmealController extends ApiController {
      */
     @Resource
     private SetmealService setmealService;
+
+    @Resource
+    private SetmealDishService setmealDishService;
 
     /**
      * 分页查询所有数据
@@ -53,7 +60,8 @@ public class SetmealController extends ApiController {
      */
     @GetMapping("{id}")
     public Result selectOne(@PathVariable Serializable id) {
-        return Result.success(this.setmealService.getById(id));
+        SetmealDto setmealDto = setmealService.getWithDishs(id);
+        return Result.success(setmealDto);
     }
 
     /**
@@ -87,7 +95,16 @@ public class SetmealController extends ApiController {
      * @return 删除结果
      */
     @DeleteMapping
-    public Result delete(@RequestParam("idList") List<Long> idList) {
+    public Result delete(@RequestParam("ids") List<Long> idList) {
+        //检验套餐下面是否有菜品
+        boolean haveDishs = setmealService.isHaveDishs(idList);
+        //有菜品抛出异常信息无法删除，无菜品则删除
+        if (haveDishs){
+            throw new CustomException("套餐内有关联菜品无法删除");
+        }
+        LambdaQueryWrapper<SetmealDish> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.in(SetmealDish::getSetmealId,idList);
+        setmealDishService.remove(queryWrapper);
         return Result.success(this.setmealService.removeByIds(idList));
     }
 }

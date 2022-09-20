@@ -2,8 +2,10 @@ package cn.uniqueww.service.impl;
 
 import cn.uniqueww.dto.SetmealDto;
 import cn.uniqueww.entity.Category;
+import cn.uniqueww.entity.Dish;
 import cn.uniqueww.entity.SetmealDish;
 import cn.uniqueww.service.CategoryService;
+import cn.uniqueww.service.DishService;
 import cn.uniqueww.service.SetmealDishService;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -16,6 +18,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
+import java.io.Serializable;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -56,15 +59,15 @@ public class SetmealServiceImpl extends ServiceImpl<SetmealDao, Setmeal> impleme
     @Override
     public Page<SetmealDto> pageList(int page, int pageSize, String name) {
         //查出基本数据
-        Page<Setmeal> pageInfo = new Page<>(page,pageSize);
+        Page<Setmeal> pageInfo = new Page<>(page, pageSize);
         LambdaQueryWrapper<Setmeal> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.like(name!=null,Setmeal::getName,name);
+        queryWrapper.like(name != null, Setmeal::getName, name);
         queryWrapper.orderByAsc(Setmeal::getUpdateTime);
-        this.page(pageInfo,queryWrapper);
+        this.page(pageInfo, queryWrapper);
 
         //数据拷贝
         Page<SetmealDto> dtoPage = new Page<>();
-        BeanUtils.copyProperties(pageInfo,dtoPage,"records");
+        BeanUtils.copyProperties(pageInfo, dtoPage, "records");
         //records数据处理
         List<Setmeal> list = pageInfo.getRecords();
         List<SetmealDto> setmealDtos = list.stream().map(item -> {
@@ -82,6 +85,35 @@ public class SetmealServiceImpl extends ServiceImpl<SetmealDao, Setmeal> impleme
         dtoPage.setRecords(setmealDtos);
 
         return dtoPage;
+    }
+
+    @Override
+    public SetmealDto getWithDishs(Serializable id) {
+        //查询基本信息
+        Setmeal setmeal = this.getById(id);
+        SetmealDto setmealDto = new SetmealDto();
+        BeanUtils.copyProperties(setmeal, setmealDto);
+
+        //组装条件
+        LambdaQueryWrapper<SetmealDish> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(SetmealDish::getSetmealId, id);
+
+        //查询关联的菜品
+        List<SetmealDish> list = setmealDishService.list(queryWrapper);
+        setmealDto.setSetmealDishes(list);
+        return setmealDto;
+    }
+
+    @Override
+    public boolean isHaveDishs(List<Long> ids) {
+
+        LambdaQueryWrapper<SetmealDish> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.in(SetmealDish::getSetmealId,ids);
+        List<SetmealDish> list = setmealDishService.list(queryWrapper);
+        if (list!=null&&list.size()>0){
+            return true;
+        }
+        return false;
     }
 }
 

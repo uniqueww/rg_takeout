@@ -3,7 +3,9 @@ package cn.uniqueww.controller;
 
 import cn.uniqueww.dto.DishDto;
 import cn.uniqueww.entity.Category;
+import cn.uniqueww.entity.DishFlavor;
 import cn.uniqueww.service.CategoryService;
+import cn.uniqueww.service.DishFlavorService;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;;
 import com.baomidou.mybatisplus.extension.api.ApiController;
 import cn.uniqueww.common.Result;
@@ -32,6 +34,8 @@ public class DishController extends ApiController {
 
     @Resource
     private CategoryService categoryService;
+    @Resource
+    private DishFlavorService dishFlavorService;
 
     /**
      * 服务对象
@@ -61,8 +65,8 @@ public class DishController extends ApiController {
 
         BeanUtils.copyProperties(pageInfo, dtoPage, "records");
         //数据清洗
-        List<Dish> records = pageInfo.getRecords();
-        List<DishDto> newRecords = records.stream().map(s -> {
+            List<Dish> records = pageInfo.getRecords();
+            List<DishDto> newRecords = records.stream().map(s -> {
             //创建接收对象
             DishDto dishDto = new DishDto();
             //将数据拷贝过去
@@ -90,7 +94,8 @@ public class DishController extends ApiController {
     public Result selectOne(@PathVariable Serializable id) {
 
         DishDto dishDto = dishService.getWithFlavors(id);
-
+        List<DishFlavor> list = dishFlavorService.list(new LambdaQueryWrapper<DishFlavor>().eq(DishFlavor::getDishId, id));
+        dishDto.setFlavors(list);
         return Result.success(dishDto);
     }
 
@@ -103,7 +108,24 @@ public class DishController extends ApiController {
     @GetMapping("/list")
     public Result list(Dish dish) {
         List<Dish> dishList = dishService.getDishList(dish);
-        return Result.success(dishList);
+        List<DishDto>  dishDtos;
+        dishDtos = dishList.stream().map((item)->{
+            DishDto dishDto = new DishDto();
+            BeanUtils.copyProperties(item,dishDto);
+            LambdaQueryWrapper<Category> wrapper = new LambdaQueryWrapper<>();
+            wrapper.eq(Category::getId,item.getCategoryId());
+            Category one = categoryService.getOne(wrapper);
+            if (one!=null){
+                dishDto.setCategoryName(one.getName());
+            }
+            LambdaQueryWrapper<DishFlavor> queryWrapper = new LambdaQueryWrapper<>();
+            queryWrapper.eq(DishFlavor::getDishId,dishDto.getId());
+            List<DishFlavor> list = dishFlavorService.list(queryWrapper);
+            dishDto.setFlavors(list);
+            return dishDto;
+        }).collect(Collectors.toList());
+
+        return Result.success(dishDtos);
     }
 
 

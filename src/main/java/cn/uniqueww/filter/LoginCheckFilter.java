@@ -37,12 +37,14 @@ public class LoginCheckFilter implements Filter {
                 "/employee/login",
                 "/employee/logout",
                 "/backend/**",
-                "/front/**"
+                "/front/**",
+                "/user/sendMsg",
+                "/user/login"
         };
         //请求链接不在不需要拦截的资源里
         if (!check(url,urls)){
             //未登录
-            if (request.getSession().getAttribute("employee")==null){
+            if (request.getSession().getAttribute("employee")==null&&request.getSession().getAttribute("user")==null){
                 response.getWriter().write(JSON.toJSONString(Result.error("NOTLOGIN")));
                 log.info("拦截到的URL为{}",url);
                 return;
@@ -50,7 +52,7 @@ public class LoginCheckFilter implements Filter {
         }
 
         //必须放在doFilter之前否则不生效
-        BaseContext.setCurrentId((Long) request.getSession().getAttribute("employee"));
+        BaseContext.setCurrentId((Long) request.getSession().getAttribute("employee")==null?(Long) request.getSession().getAttribute("user"):(Long) request.getSession().getAttribute("employee"));
         log.info("目前的用户Id是:{}",BaseContext.getCurrentId());
         //已经登录不做处理
         filterChain.doFilter(request,response);

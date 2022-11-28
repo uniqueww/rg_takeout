@@ -11,5 +11,7 @@ import cn.uniqueww.entity.Orders;
  */
 public interface OrdersService extends IService<Orders> {
 
+    void submit(Orders orders);
+
 }
 

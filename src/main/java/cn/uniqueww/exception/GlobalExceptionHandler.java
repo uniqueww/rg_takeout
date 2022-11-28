@@ -22,9 +22,7 @@ public class GlobalExceptionHandler {
         if (ex.getMessage().contains("Duplicate entry")){
             String message = ex.getMessage().split(" ")[9]+"已存在";
             return Result.error(message);
-
         }
-
         return Result.error("未知异常");
     }
 
@@ -38,6 +36,4 @@ public class GlobalExceptionHandler {
         log.info(ex.getMessage());
         return Result.error(ex.getMessage());
     }
-
-
 }

@@ -2,16 +2,25 @@ package cn.uniqueww.controller;
 
 
 
+import cn.uniqueww.common.Result;
+import cn.uniqueww.dto.OrderDto;
+import cn.uniqueww.entity.OrderDetail;
+import cn.uniqueww.service.OrderDetailService;
+import cn.uniqueww.utils.BaseContext;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.api.ApiController;
 import com.baomidou.mybatisplus.extension.api.R;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import cn.uniqueww.entity.Orders;
 import cn.uniqueww.service.OrdersService;
+import org.springframework.beans.BeanUtils;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -21,13 +30,16 @@ import java.util.List;
  * @since 2022-08-27 12:58:56
  */
 @RestController
-@RequestMapping("orders")
+@RequestMapping("order")
 public class OrdersController extends ApiController {
     /**
      * 服务对象
      */
     @Resource
     private OrdersService ordersService;
+
+    @Resource
+    private OrderDetailService orderDetailService;
 
     /**
      * 分页查询所有数据
@@ -37,8 +49,8 @@ public class OrdersController extends ApiController {
      * @return 所有数据
      */
     @GetMapping
-    public R selectAll(Page<Orders> page, Orders orders) {
-        return success(this.ordersService.page(page, new QueryWrapper<>(orders)));
+    public Result selectAll(Page<Orders> page, Orders orders) {
+        return Result.success(this.ordersService.page(page, new QueryWrapper<>(orders)));
     }
 
     /**
@@ -48,8 +60,8 @@ public class OrdersController extends ApiController {
      * @return 单条数据
      */
     @GetMapping("{id}")
-    public R selectOne(@PathVariable Serializable id) {
-        return success(this.ordersService.getById(id));
+    public Result selectOne(@PathVariable Serializable id) {
+        return Result.success(this.ordersService.getById(id));
     }
 
     /**
@@ -59,8 +71,8 @@ public class OrdersController extends ApiController {
      * @return 新增结果
      */
     @PostMapping
-    public R insert(@RequestBody Orders orders) {
-        return success(this.ordersService.save(orders));
+    public Result insert(@RequestBody Orders orders) {
+        return Result.success(this.ordersService.save(orders));
     }
 
     /**
@@ -70,8 +82,8 @@ public class OrdersController extends ApiController {
      * @return 修改结果
      */
     @PutMapping
-    public R update(@RequestBody Orders orders) {
-        return success(this.ordersService.updateById(orders));
+    public Result update(@RequestBody Orders orders) {
+        return Result.success(this.ordersService.updateById(orders));
     }
 
     /**
@@ -81,8 +93,49 @@ public class OrdersController extends ApiController {
      * @return 删除结果
      */
     @DeleteMapping
-    public R delete(@RequestParam("idList") List<Long> idList) {
-        return success(this.ordersService.removeByIds(idList));
+    public Result delete(@RequestParam("idList") List<Long> idList) {
+        return Result.success(this.ordersService.removeByIds(idList));
+    }
+
+    /**
+     * 提交订单结算
+     * */
+    @Transactional
+    @PostMapping("submit")
+    public  Result submit(@RequestBody Orders orders){
+        ordersService.submit(orders);
+
+        return Result.success("提交完成");
+    }
+
+    /**
+     * 分页查询订单
+     * */
+    @GetMapping("userPage")
+    public Result userPage(Integer page,Integer pageSize){
+        //当前用户id
+        Long currentId = BaseContext.getCurrentId();
+
+        Page<Orders> ordersPage = new Page<>(page,pageSize);
+        ordersService.page(ordersPage, new LambdaQueryWrapper<Orders>().eq(Orders::getUserId, currentId));
+
+        Page<OrderDto> orderDtoPage = new Page<>();
+        BeanUtils.copyProperties(ordersPage,orderDtoPage,"records");
+        //组装数据
+        ArrayList<OrderDto> resultRecord = new ArrayList<>();
+        List<Orders> records = ordersPage.getRecords();
+        records.forEach(x->{
+            OrderDto orderDto = new OrderDto();
+            BeanUtils.copyProperties(x,orderDto);
+            //查询detail数据
+            LambdaQueryWrapper<OrderDetail> wrapper = new LambdaQueryWrapper<>();
+            wrapper.eq(OrderDetail::getOrderId,x.getId());
+            List<OrderDetail> list = orderDetailService.list(wrapper);
+            orderDto.setOrderDetails(list);
+            resultRecord.add(orderDto);
+        });
+        orderDtoPage.setRecords(resultRecord);
+        return Result.success(orderDtoPage);
     }
 }
 

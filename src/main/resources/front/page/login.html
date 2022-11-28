@@ -60,9 +60,9 @@
             methods:{
                 getCode(){
                     this.form.code = ''
-                    // const regex = /^(13[0-9]{9})|(15[0-9]{9})|(17[0-9]{9})|(18[0-9]{9})|(19[0-9]{9})$/;  // 手机号的正则表达式 验证
+                     const regex = /^(13[0-9]{9})|(15[0-9]{9})|(17[0-9]{9})|(18[0-9]{9})|(19[0-9]{9})$/;  // 手机号的正则表达式 验证
                     // const regex = /^[0-9a-zA-Z]+([\.\-_]*[0-9a-zA-Z]+)*@([0-9a-zA-Z]+[\-_]*[0-9a-zA-Z]+\.)+[0-9a-zA-Z]{2,6}$/; //  邮箱的正则表达式验证
-                    const regex = /^[a-zA-Z0-9_-]+@[a-zA-Z0-9_-]+(\.[a-zA-Z0-9_-]+)+$/;
+                    //const regex = /^[a-zA-Z0-9_-]+@[a-zA-Z0-9_-]+(\.[a-zA-Z0-9_-]+)+$/;
                     if (regex.test(this.form.phone)) {
                         this.msgFlag = false
                         // this.form.code = (Math.random()*1000000).toFixed(0)

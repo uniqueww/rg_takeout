@@ -3,6 +3,7 @@ package cn.uniqueww.controller;
 
 
 import cn.uniqueww.dto.SetmealDto;
+import cn.uniqueww.entity.Category;
 import cn.uniqueww.entity.SetmealDish;
 import cn.uniqueww.exception.CustomException;
 import cn.uniqueww.service.SetmealDishService;
@@ -14,6 +15,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import cn.uniqueww.entity.Setmeal;
 import cn.uniqueww.service.SetmealService;
 import lombok.extern.slf4j.Slf4j;
+import org.omg.CORBA.PUBLIC_MEMBER;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -106,6 +108,15 @@ public class SetmealController extends ApiController {
         queryWrapper.in(SetmealDish::getSetmealId,idList);
         setmealDishService.remove(queryWrapper);
         return Result.success(this.setmealService.removeByIds(idList));
+    }
+
+
+    @GetMapping("list")
+    public Result list(Setmeal setmeal){
+        LambdaQueryWrapper<Setmeal> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(Setmeal::getCategoryId,setmeal.getCategoryId())
+                .eq(Setmeal::getStatus,setmeal.getStatus());
+        return Result.success(setmealService.list(wrapper));
     }
 }
 
